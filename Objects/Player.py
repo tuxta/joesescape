@@ -6,8 +6,10 @@ class Player(RoomObject):
     def __init__(self, room, x, y):
         RoomObject.__init__(self, room, x, y)
 
-        image = self.load_image('player.png')
-        self.set_image(image, 25, 32)
+        player = self.load_image('player.png')
+        self.player_left = self.load_image('player_left.png')
+        self.player_right = self.load_image('player_right.png')
+        self.set_image(player, 25, 32)
         self.depth = 5
 
         self.gravity = 0
@@ -37,10 +39,12 @@ class Player(RoomObject):
 
     def key_pressed(self, key):
         if key[pygame.K_LEFT]:
+            self.set_image(self.player_left, 25, 32)
             self.x -= 4
             if not self.collides_at(self, 0, 4, 'Block'):
                 self.gravity = 1
         elif key[pygame.K_RIGHT]:
+            self.set_image(self.player_right, 25, 32)
             self.x += 4
             if not self.collides_at(self, 0, 4, 'Block'):
                 self.gravity = 1
