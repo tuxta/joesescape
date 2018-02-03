@@ -7,7 +7,7 @@ class Globals:
     SCREEN_WIDTH = 800
     SCREEN_HEIGHT = 600
 
-    SCORE = 0
+    SCORE = 3
 
     # - Set the starting number of lives - #
     LIVES = 3

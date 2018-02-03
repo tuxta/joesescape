@@ -1,5 +1,5 @@
 from GameFrame import Level, TextObject, Globals
-from Objects import Goal, Block, Player, Banner, Monster
+from Objects import Goal, Block, Player, Banner, Monster, Monster2
 
 
 class Platform(Level):
@@ -19,21 +19,21 @@ class Platform(Level):
         # - Set up maze, objects 32x32 25x17 - #
         room_objects = [
             'lmmmmmmmmmmmmmmmmmmmmmmmr',
-            'u______________________gu',
+            'ug_________________M____u',
             'u_______________________u',
-            'u_________________lmmmmmu',
+            'umrG ___________________u',
             'u_______________________u',
-            'ummmmr______lmmmr_______u',
+            'u_lmmr_lmmmmmr______lr__u',
+            'u_____________lmmmr_____u',
+            'u______________________lu',
+            'u__________M____________u',
+            'u__________________Glmmmu',
+            'u_____M________lr_______u',
+            'u_________lmmr___lr_____u',
             'u_______________________u',
-            'u_________lmmmmr________u',
-            'u_______________________u',
-            'ummmmmr___________lmmmmmu',
-            'u_______________________u',
-            'u________lmmmmmmmr______u',
-            'u_______________________u',
-            'ummmmmr_________________u',
-            'u______lmmmmmmmr________u',
-            'u_________________p_____u',
+            'ummmr__lr_______________u',
+            'u________lmmmr__________u',
+            'up______________________u',
             'ummmmmmmmmmmmmmmmmmmmmmmu'
         ]
 
@@ -51,8 +51,10 @@ class Platform(Level):
                     self.add_room_object(Player(self, j*32, i*32))
                 elif obj == 'g':
                     self.add_room_object(Goal(self, j*32, i*32))
-                elif obj == 'm':
-                    self.add_room_object(Monster(self, j*32, i*32))
+                elif obj == 'G':
+                    self.add_room_object(Monster2(self, j*32, i*32))
+                elif obj == 'M':
+                    self.add_room_object(Monster(self, j * 32, i * 32))
 
         # - Add Banner for game info (lives) 800x56 - #
         self.add_room_object(Banner(self, 0, 544))
@@ -64,7 +66,7 @@ class Platform(Level):
         self.score_text.update_text()
         self.add_room_object(self.score_text)
 
-    def update_score(self, value):
+    def update_lives(self, value):
         Globals.LIVES += value
         if Globals.LIVES == 0:
             self.running = False
