@@ -29,9 +29,10 @@ class RoomObject:
         return os.path.join('Images', file_name)
 
     def set_image(self, image, width, height):
-        self.image = pygame.image.load(image)
+        self.image = pygame.image.load(image).convert_alpha()
         self.width = width
         self.height = height
+        self.image = pygame.transform.scale(self.image, (width, height))
         self.rect = pygame.Rect(self.x, self.y, width, height)
 
     def register_collision_object(self, collision_object):
