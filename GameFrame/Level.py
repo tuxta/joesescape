@@ -5,7 +5,7 @@ from GameFrame.Globals import Globals
 
 class Level:
 
-    def __init__(self, screen):
+    def __init__(self, screen, joysticks):
         self.screen = screen
         self.objects = []
         self.keyboard_objects = []
@@ -19,6 +19,17 @@ class Level:
         self.background_scroll_speed = 0
         self.background_scrolling = False
         self.user_events = []
+        self.joysticks = joysticks
+        self.p1_btns = []
+        self.p2_btns = []
+        if len(self.joysticks) > 0:
+            buttons = self.joysticks[0].get_numbuttons()
+            for i in range(buttons):
+                self.p1_btns.append(self.joysticks[0].get_button(i))
+            if len(self.joysticks) > 1:
+                buttons = self.joysticks[1].get_numbuttons()
+                for i in range(buttons):
+                    self.p2_btns.append(self.joysticks[1].get_button(i))
 
     def run(self):
         self.running = True
@@ -49,10 +60,25 @@ class Level:
                         if obj.rect.collidepoint(mouse_pos):
                             obj.clicked(event.button)
 
+            # -  Check for joystick events and pass  - #
+            # - to objects registered for key events - #
+            signals = False
+            for i in range(len(self.p1_btns)):
+                self.p1_btns[i] = self.joysticks[0].get_button(i)
+                if self.p1_btns[i] == 1:
+                    signals = True
+            for i in range(len(self.p2_btns)):
+                self.p2_btns[i] = self.joysticks[1].get_button(i)
+                if self.p2_btns[i] == 1:
+                    signals = True
+            if signals:
+                for obj in self.keyboard_objects:
+                    obj.joy_pad_signal(self.p1_btns, self.p2_btns)
+
             # - Check for a keyboard event and pass - #
             # - to objects registered for key events - #
             keys = pygame.key.get_pressed()
-            if len(keys) > 0:
+            if len(keys):
                 for obj in self.keyboard_objects:
                     obj.key_pressed(keys)
 
@@ -146,19 +172,19 @@ class Level:
         pass
 
     def delete_object(self, obj):
-        for index, list_obj in enumerate(self.objects):
+        for index, list_obj in self.enumerate_backwards(self.objects):
             if list_obj is obj:
                 self.objects.pop(index)
             else:
                 list_obj.remove_object(obj)
-        for index, list_obj in enumerate(self.keyboard_objects):
+        for index, list_obj in self.enumerate_backwards(self.keyboard_objects):
             if list_obj is obj:
                 self.keyboard_objects.pop(index)
-        for index, list_obj in enumerate(self.mouse_objects):
+        for index, list_obj in self.enumerate_backwards(self.mouse_objects):
             if list_obj is obj:
                 self.mouse_objects.pop(index)
         # Remove any timed function calls for the deleted object
-        for index, event_method in enumerate(self.user_events):
+        for index, event_method in self.enumerate_backwards(self.user_events):
             obj_inst = event_method[1].__self__
             if obj_inst is obj:
                 self.user_events.pop(index)
@@ -167,8 +193,15 @@ class Level:
         self.user_events.append([ticks, function_call])
 
     def process_user_events(self):
-        for index, user_event in enumerate(self.user_events):
+        for index, user_event in self.enumerate_backwards(self.user_events):
             user_event[0] -= 1
             if user_event[0] <= 0:
                 user_event[1]()
                 self.user_events.pop(index)
+
+    # Iterate backwards over a list, using an index and item iterator
+    def enumerate_backwards(self, object_list):
+        index = len(object_list)
+        for item in reversed(object_list):
+            index -= 1
+            yield index, item

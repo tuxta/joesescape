@@ -4,8 +4,8 @@ from Objects import Goal, Block, Player, Banner, Monster, Monster2
 
 class Platform(Level):
 
-    def __init__(self, screen):
-        Level.__init__(self, screen)
+    def __init__(self, screen, joysticks):
+        Level.__init__(self, screen, joysticks)
 
         # - Set Background image - #
         self.set_background_image("wood_background.jpg")

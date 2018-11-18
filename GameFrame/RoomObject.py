@@ -4,7 +4,6 @@ import pygame
 
 
 class RoomObject:
-
     def __init__(self, room, x, y):
         self.room = room
         self.depth = 0
@@ -16,11 +15,14 @@ class RoomObject:
         self.width = 0
         self.height = 0
         self.image = 0
+        self.image_orig = 0
+        self.curr_rotation = 0
         self.x_speed = 0
         self.y_speed = 0
         self.gravity = 0
         self.handle_key_events = False
         self.handle_mouse_events = False
+        self.angle = 0
 
         self.collision_object_types = set()
         self.collision_objects = []
@@ -29,10 +31,11 @@ class RoomObject:
         return os.path.join('Images', file_name)
 
     def set_image(self, image, width, height):
-        self.image = pygame.image.load(image).convert_alpha()
+        self.image_orig = pygame.image.load(image).convert_alpha()
+        self.image_orig = pygame.transform.scale(self.image_orig, (width, height))
         self.width = width
         self.height = height
-        self.image = pygame.transform.scale(self.image, (width, height))
+        self.image = self.image_orig.copy()
         self.rect = pygame.Rect(self.x, self.y, width, height)
 
     def register_collision_object(self, collision_object):
@@ -75,6 +78,9 @@ class RoomObject:
         pass
 
     def key_pressed(self, key):
+        pass
+
+    def joy_pad_signal(self, p1_buttons, p2_buttons):
         pass
 
     def clicked(self, button_number):
@@ -138,3 +144,69 @@ class RoomObject:
         new_y_speed = math.sin(math.radians(angle)) * speed
 
         return round(new_x_speed), round(new_y_speed)
+
+    def get_direction_coordinates(self, angle, speed):
+
+        angle += 90
+        if angle >= 360:
+            angle = angle - 360
+
+        if angle == 0:
+            x = speed
+            y = 0
+        elif angle < 90:
+            x, y = self._get_direction(angle + 90, speed)
+            x, y = y, x
+        elif angle == 90:
+            x = 0
+            y = -speed
+        elif angle < 180:
+            x, y = self._get_direction(angle, speed)
+            y *= -1
+        elif angle == 180:
+            x = -speed
+            y = 0
+        elif angle < 270:
+            x, y = self._get_direction(angle - 90, speed)
+            y, x = -x, -y
+        elif angle == 270:
+            x = 0
+            y = speed
+        elif angle < 360:
+            x, y = self._get_direction(angle - 180, speed)
+            y, x = y, -x
+
+        return x, y
+
+    def rotate(self, angle):
+
+        if self.curr_rotation > 360:
+            self.curr_rotation = self.curr_rotation - 360
+        elif self.curr_rotation < 0:
+            self.curr_rotation = 350 - self.curr_rotation
+
+        self.curr_rotation = self.angle = angle + self.curr_rotation
+
+        self.image = pygame.transform.rotate(self.image_orig, self.angle)
+
+        x, y = self.rect.center
+
+        self.rect = self.image.get_rect()
+
+        self.x = x - int((self.rect.width / 2))
+        self.y = y - int((self.rect.height / 2))
+
+        self.rect.x = self.x
+        self.rect.y = self.y
+
+
+    def rotate_to_coordinate(self, mouseX, mouseY):
+
+        distanceX = self.x + (self.width / 2) - mouseX
+        distanceY = self.y + (self.height / 2) - mouseY
+
+        angle = math.degrees(math.atan2(distanceX, distanceY))
+
+        self.curr_rotation = 0
+
+        self.rotate(angle)
