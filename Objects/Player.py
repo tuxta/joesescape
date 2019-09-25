@@ -23,8 +23,7 @@ class Player(RoomObject):
         self.register_collision_object('Monster')
         self.register_collision_object('Monster2')
 
-    def handle_collision(self, other):
-        other_type = type(other).__name__
+    def handle_collision(self, other, other_type):
         if other_type == 'Block':
             self.blocked()
             if self.rect.centery < other.rect.top:

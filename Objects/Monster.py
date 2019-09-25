@@ -12,6 +12,6 @@ class Monster(RoomObject):
 
         self.register_collision_object('Block')
 
-    def handle_collision(self, other):
-        if type(other).__name__ == 'Block':
+    def handle_collision(self, other, other_type):
+        if other_type == 'Block':
             self.y_speed *= -1
