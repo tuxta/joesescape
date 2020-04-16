@@ -39,16 +39,33 @@ class Player(RoomObject):
 
     def key_pressed(self, key):
         if key[pygame.K_LEFT]:
-            self.set_image(self.player_left, 25, 32)
-            self.x -= 4
-            if not self.collides_at(self, 0, 4, 'Block'):
-                self.gravity = 1
+            self.move_right()
         elif key[pygame.K_RIGHT]:
-            self.set_image(self.player_right, 25, 32)
-            self.x += 4
-            if not self.collides_at(self, 0, 4, 'Block'):
-                self.gravity = 1
+            self.move_left()
         if key[pygame.K_SPACE]:
-            if self.collides_at(self, 0, 1, 'Block'):
-                self.y_speed = -15
-                self.gravity = 1
+            self.jump()
+
+    def joy_pad_signal(self, p1_buttons, p2_buttons):
+        if p1_buttons[11] < -0.5:
+            self.move_right()
+        elif p1_buttons[11] > 0.5:
+            self.move_left()
+        if p1_buttons[2]:
+            self.jump()
+
+    def move_right(self):
+        self.set_image(self.player_left, 25, 32)
+        self.x -= 4
+        if not self.collides_at(self, 0, 4, 'Block'):
+            self.gravity = 1
+
+    def move_left(self):
+        self.set_image(self.player_right, 25, 32)
+        self.x += 4
+        if not self.collides_at(self, 0, 4, 'Block'):
+            self.gravity = 1
+
+    def jump(self):
+        if self.collides_at(self, 0, 1, 'Block'):
+            self.y_speed = -15
+            self.gravity = 1
